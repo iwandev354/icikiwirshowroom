@@ -1,0 +1,20 @@
+{% comment %}Tombol aksi admin untuk transaksi `t`. Gunakan: include dengan t=...{% endcomment %}
+{% if t.aktif %}
+<div class="actions">
+  {% if t.status == "menunggu" %}
+    <form method="post" action="{% url 'transaksi:aksi' t.kode %}">
+      {% csrf_token %}<input type="hidden" name="aksi" value="konfirmasi"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button class="btn btn--small" type="submit">Konfirmasi</button>
+    </form>
+  {% elif t.status == "dikonfirmasi" %}
+    <form method="post" action="{% url 'transaksi:aksi' t.kode %}">
+      {% csrf_token %}<input type="hidden" name="aksi" value="selesai"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button class="btn btn--small" type="submit">Tandai selesai</button>
+    </form>
+  {% endif %}
+  <form method="post" action="{% url 'transaksi:aksi' t.kode %}" onsubmit="return confirm('Batalkan transaksi {{ t.kode }}? Kendaraan akan tersedia kembali.');">
+    {% csrf_token %}<input type="hidden" name="aksi" value="batal"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <button class="btn btn--small btn--danger" type="submit">Batalkan</button>
+  </form>
+</div>
+{% endif %}

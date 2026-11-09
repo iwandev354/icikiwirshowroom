@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load rupiah %}
+
+{% block title %}Histori Pembelian - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Histori pembelian</h1>
+
+<div class="chips" role="tablist">
+  <a class="chip{% if not status_aktif %} is-on{% endif %}" href="{% url 'transaksi:histori' %}">Semua</a>
+  {% for val, label in status_pilihan %}
+    <a class="chip{% if status_aktif == val %} is-on{% endif %}" href="?status={{ val }}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<p class="muted">{{ jumlah }} transaksi &middot; Total belanja selesai: <strong>{{ total_belanja|rupiah }}</strong></p>
+
+{% if halaman.object_list %}
+<div class="tablewrap">
+  <table class="tbl">
+    <thead>
+      <tr><th>Kode</th><th>Tanggal</th><th>Kendaraan</th><th class="num">Total</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for t in halaman %}
+      <tr>
+        <td><a href="{{ t.get_absolute_url }}"><strong>{{ t.kode }}</strong></a></td>
+        <td>{{ t.dibuat|date:"d M Y" }}</td>
+        <td>{{ t.judul_kendaraan }}</td>
+        <td class="num">{{ t.total|rupiah }}</td>
+        <td>{% include "transaksi/_badge.html" %}</td>
+        <td class="num">
+          <a href="{{ t.get_absolute_url }}">Detail</a>
+          {% if t.bisa_cetak_struk %} &middot; <a href="{% url 'transaksi:struk' t.kode %}">Struk</a>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if halaman.has_other_pages %}
+<nav class="pager" aria-label="Halaman">
+  {% if halaman.has_previous %}<a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ halaman.previous_page_number }}">&larr; Sebelumnya</a>{% endif %}
+  <span>Halaman {{ halaman.number }} dari {{ halaman.paginator.num_pages }}</span>
+  {% if halaman.has_next %}<a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ halaman.next_page_number }}">Berikutnya &rarr;</a>{% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+  <p class="empty">Belum ada transaksi{% if status_aktif %} dengan status ini{% endif %}.<br>
+    <a class="btn" href="{% url 'katalog:daftar' %}" style="margin-top:12px">Cari kendaraan</a></p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ judul }} - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<div class="authbox">
+  <h1>{{ judul }}</h1>
+  {% if peran == "admin" %}
+    <p class="muted">Khusus pengelola toko. Pembeli silakan masuk lewat <a href="{% url 'akun:masuk' %}">halaman pembeli</a>.</p>
+  {% else %}
+    <p class="muted">Masuk untuk membeli, menyimpan favorit, dan melihat histori pembelian.</p>
+  {% endif %}
+
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% include "_form.html" %}
+    <button class="btn btn--wide" type="submit">Masuk</button>
+  </form>
+
+  {% if peran != "admin" %}
+    <p class="authbox__alt">Belum punya akun? <a href="{% url 'akun:daftar' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Daftar sekarang</a></p>
+  {% endif %}
+</div>
+{% endblock %}

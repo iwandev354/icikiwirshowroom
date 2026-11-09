@@ -1,0 +1,15 @@
+{% if user.is_authenticated %}
+  {% if not user.is_staff %}
+  <form method="post" action="{% url 'katalog:favorit_toggle' k.id %}" class="hati">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    {% if k.id in favorit_ids %}
+      <button type="submit" class="hati__btn is-on" aria-label="Hapus dari favorit" title="Hapus dari favorit">&#9829;</button>
+    {% else %}
+      <button type="submit" class="hati__btn" aria-label="Simpan ke favorit" title="Simpan ke favorit">&#9825;</button>
+    {% endif %}
+  </form>
+  {% endif %}
+{% else %}
+  <a class="hati hati__btn" href="{% url 'akun:masuk' %}?next={{ request.get_full_path|urlencode }}" aria-label="Masuk untuk menyimpan favorit" title="Masuk untuk menyimpan favorit">&#9825;</a>
+{% endif %}

@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}{{ k.judul }} {{ k.tahun }} - {{ NAMA_USAHA }}{% endblock %}
+{% block desc %}{{ k.judul }} tahun {{ k.tahun }}, {{ k.kilometer_fmt }}, {{ k.harga_rp }}.{% endblock %}
+
+{% block content %}
+<nav class="crumbs" aria-label="Breadcrumb">
+  <a href="{% url 'katalog:beranda' %}">Beranda</a> /
+  <a href="{% url 'katalog:daftar' %}?jenis={{ k.jenis }}">{{ k.get_jenis_display }}</a> /
+  <span>{{ k.judul }}</span>
+</nav>
+
+<div class="detail">
+  <section class="gallery">
+    <div class="gallery__main">
+      {% if k.foto_utama %}
+        <img id="foto-besar" src="{{ k.foto_utama.url }}" alt="{{ k.judul }}">
+      {% else %}
+        <span class="noimg noimg--big">{{ k.get_jenis_display }}</span>
+      {% endif %}
+    </div>
+    {% if k.foto.all %}
+    <div class="gallery__thumbs">
+      {% if k.foto_utama %}<button type="button" data-src="{{ k.foto_utama.url }}"><img src="{{ k.foto_utama.url }}" alt="Foto utama"></button>{% endif %}
+      {% for f in k.foto.all %}
+        <button type="button" data-src="{{ f.gambar.url }}"><img src="{{ f.gambar.url }}" alt="{{ f.keterangan|default:k.judul }}" loading="lazy"></button>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="info">
+    <h1>{{ k.judul }}</h1>
+    <p class="price price--big">{{ k.harga_rp }}</p>
+    {% if not k.tersedia %}<p class="badge badge--{{ k.status }} badge--inline">{{ k.get_status_display }}</p>{% endif %}
+
+    <table class="specs">
+      <tr><th>Merek</th><td>{{ k.merek.nama }}</td></tr>
+      <tr><th>Tahun</th><td>{{ k.tahun }}</td></tr>
+      <tr><th>Kilometer</th><td>{{ k.kilometer_fmt }}</td></tr>
+      <tr><th>Transmisi</th><td>{{ k.get_transmisi_display }}</td></tr>
+      <tr><th>Bahan bakar</th><td>{{ k.get_bahan_bakar_display }}</td></tr>
+      {% if k.kapasitas_mesin_cc %}<tr><th>Kapasitas mesin</th><td>{{ k.kapasitas_mesin_cc }} cc</td></tr>{% endif %}
+      {% if k.warna %}<tr><th>Warna</th><td>{{ k.warna }}</td></tr>{% endif %}
+      {% if k.plat_wilayah %}<tr><th>Plat wilayah</th><td>{{ k.plat_wilayah }}</td></tr>{% endif %}
+      {% if k.pajak_sampai %}<tr><th>Pajak hidup s/d</th><td>{{ k.pajak_sampai|date:"d F Y" }}</td></tr>{% endif %}
+      {% if k.lokasi %}<tr><th>Lokasi</th><td>{{ k.lokasi }}</td></tr>{% endif %}
+    </table>
+
+    {% if k.tersedia %}
+      {% if not user.is_authenticated %}
+        <a class="btn btn--wide" href="{% url 'akun:masuk' %}?next={% url 'transaksi:beli' k.slug %}">Masuk untuk membeli</a>
+      {% elif not user.is_staff %}
+        <a class="btn btn--wide" href="{% url 'transaksi:beli' k.slug %}">Beli / Pesan sekarang</a>
+      {% endif %}
+    {% endif %}
+
+    {% if user.is_authenticated and not user.is_staff %}
+      <form method="post" action="{% url 'katalog:favorit_toggle' k.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button class="btn btn--ghost btn--wide" type="submit">
+          {% if k.id in favorit_ids %}&#9829; Hapus dari favorit{% else %}&#9825; Simpan ke favorit{% endif %}
+        </button>
+      </form>
+    {% endif %}
+
+    {% if user.is_staff %}
+      <a class="btn btn--ghost btn--wide" href="{% url 'admin:katalog_kendaraan_change' k.pk %}">Edit di halaman admin</a>
+    {% endif %}
+    {% if k.tersedia %}
+      <a class="btn btn--ghost btn--wide" href="{% url 'katalog:jadwal' k.slug %}">Jadwalkan Lihat Unit</a>
+    {% endif %}  
+    {% if WHATSAPP_NUMBER %}
+      <a class="btn btn--ghost btn--wide" target="_blank" rel="noopener"
+         href="https://wa.me/{{ WHATSAPP_NUMBER }}?text={{ 'Halo, saya tertarik dengan '|urlencode }}{{ k.judul|urlencode }}%20({{ k.tahun }})">Tanya via WhatsApp</a>
+    {% endif %}
+  </section>
+</div>
+<!-- Bagikan -->
+<div class="share">
+  <span class="muted small">Bagikan:</span>
+  <a id="share-wa" class="btn btn--small btn--ghost" target="_blank" rel="noopener">WhatsApp</a>
+  <a id="share-fb" class="btn btn--small btn--ghost" target="_blank" rel="noopener">Facebook</a>
+</div>
+
+<!-- Simulasi kredit -->
+<section class="panel kredit" data-harga="{{ k.harga|stringformat:'d' }}">
+  <h2 class="sub" style="margin-top:0">Simulasi Kredit</h2>
+
+  <div class="form">
+    <div class="field">
+      <label for="kr-dp">Uang muka (DP): <strong id="kr-dp-teks"></strong></label>
+      <input type="range" id="kr-dp" min="10" max="70" step="5" value="25">
+    </div>
+    <div class="pair">
+      <div class="field">
+        <label for="kr-tenor">Tenor</label>
+        <select id="kr-tenor">
+          <option value="12">12 bulan</option>
+          <option value="24">24 bulan</option>
+          <option value="36" selected>36 bulan</option>
+          <option value="48">48 bulan</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="kr-bunga">Bunga flat / tahun (%)</label>
+        <input type="number" id="kr-bunga" value="10" min="0" max="40" step="0.5">
+      </div>
+    </div>
+  </div>
+
+  <dl class="rincian">
+    <div><dt>Harga</dt><dd id="kr-harga"></dd></div>
+    <div><dt>Uang muka</dt><dd id="kr-dp-rp"></dd></div>
+    <div><dt>Pokok pinjaman</dt><dd id="kr-pokok"></dd></div>
+    <div class="rincian__total"><dt>Angsuran / bulan</dt><dd id="kr-angsuran"></dd></div>
+  </dl>
+  <p class="muted small">Perkiraan saja. Angka resmi mengikuti perusahaan pembiayaan.</p>
+</section>
+
+<script>
+(function () {
+  var box = document.querySelector('.kredit');
+  if (!box) return;
+  var harga = parseInt(box.dataset.harga, 10);
+  var rp = function (n) { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); };
+  var $ = function (id) { return document.getElementById(id); };
+
+  function hitung() {
+    var persen = +$('kr-dp').value, tenor = +$('kr-tenor').value, bunga = +$('kr-bunga').value;
+    var dp = harga * persen / 100, pokok = harga - dp;
+    var total = pokok + pokok * (bunga / 100) * (tenor / 12);
+    $('kr-dp-teks').textContent = persen + '%';
+    $('kr-harga').textContent = rp(harga);
+    $('kr-dp-rp').textContent = rp(dp);
+    $('kr-pokok').textContent = rp(pokok);
+    $('kr-angsuran').textContent = rp(total / tenor);
+  }
+  ['kr-dp', 'kr-tenor', 'kr-bunga'].forEach(function (id) {
+    $(id).addEventListener('input', hitung);
+  });
+  hitung();
+
+  var teks = encodeURIComponent('{{ k.judul|escapejs }} - {{ k.harga_rp }}\n' + location.href);
+  $('share-wa').href = 'https://wa.me/?text=' + teks;
+  $('share-fb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(location.href);
+})();
+</script>
+{% if k.deskripsi %}
+<section class="desc">
+  <h2 class="section-title">Deskripsi</h2>
+  <p>{{ k.deskripsi|linebreaksbr }}</p>
+</section>
+{% endif %}
+
+<section class="contact" id="kontak">
+  <h2 class="section-title">Ada pertanyaan? Kirim pesan</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+      <label>{{ field.label }} {{ field }}
+        {% for e in field.errors %}<span class="error">{{ e }}</span>{% endfor %}
+      </label>
+    {% endfor %}
+    <button class="btn" type="submit">Kirim</button>
+  </form>
+</section>
+
+{% if mirip %}
+<section>
+  <h2 class="section-title">Kendaraan serupa</h2>
+  <div class="grid">
+    {% for k in mirip %}{% include "katalog/_kartu.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<script>
+  (function () {
+    var besar = document.getElementById("foto-besar");
+    if (!besar) return;
+    document.querySelectorAll(".gallery__thumbs button").forEach(function (b) {
+      b.addEventListener("click", function () { besar.src = b.dataset.src; });
+    });
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load rupiah %}
+
+{% block title %}Pesan {{ k.judul }} - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<nav class="crumbs" aria-label="Breadcrumb">
+  <a href="{% url 'katalog:beranda' %}">Beranda</a> /
+  <a href="{{ k.get_absolute_url }}">{{ k.judul }}</a> /
+  <span>Pesan</span>
+</nav>
+
+<h1 class="page-title">Pesan kendaraan</h1>
+
+<div class="checkout">
+  <form method="post" class="form panel" novalidate>
+    {% csrf_token %}
+    {% include "_form.html" %}
+    <button class="btn btn--wide" type="submit">Buat pesanan</button>
+    <p class="muted small">Pesanan dikonfirmasi manual oleh penjual. Pembayaran dilakukan sesuai metode yang Anda pilih; kendaraan ditahan untuk Anda selama pesanan aktif.</p>
+  </form>
+
+  <aside class="panel summary">
+    <h2>Ringkasan</h2>
+    {% if k.foto_utama %}<img class="summary__img" src="{{ k.foto_utama.url }}" alt="{{ k.judul }}">{% endif %}
+    <h3>{{ k.judul }}</h3>
+    <p class="muted">{{ k.tahun }} &middot; {{ k.kilometer_fmt }} &middot; {{ k.get_transmisi_display }}</p>
+    <dl class="rincian">
+      <div><dt>Harga kendaraan</dt><dd>{{ k.harga|rupiah }}</dd></div>
+      <div><dt>Biaya administrasi</dt><dd>{{ biaya_admin|rupiah }}</dd></div>
+      <div class="rincian__total"><dt>Total</dt><dd>{{ total|rupiah }}</dd></div>
+    </dl>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load rupiah %}
+
+{% block title %}Dasbor Saya - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Halo, {{ user.first_name|default:user.username }}</h1>
+
+<div class="stats">
+  <a class="stat" href="{% url 'katalog:favorit' %}"><span class="stat__n">{{ jumlah_favorit }}</span><span class="stat__l">Favorit</span></a>
+  <a class="stat" href="{% url 'transaksi:histori' %}?status=menunggu"><span class="stat__n">{{ ringkasan.menunggu }}</span><span class="stat__l">Menunggu konfirmasi</span></a>
+  <a class="stat" href="{% url 'transaksi:histori' %}?status=dikonfirmasi"><span class="stat__n">{{ ringkasan.dikonfirmasi }}</span><span class="stat__l">Dikonfirmasi</span></a>
+  <a class="stat" href="{% url 'transaksi:histori' %}?status=selesai"><span class="stat__n">{{ ringkasan.selesai }}</span><span class="stat__l">Pembelian selesai</span></a>
+  <div class="stat stat--wide"><span class="stat__n stat__n--sm">{{ belanja|rupiah }}</span><span class="stat__l">Total belanja (selesai)</span></div>
+</div>
+
+<div class="cols">
+  <section class="panel">
+    <div class="section-head"><h2 class="sub" style="margin:0">Transaksi terbaru</h2><a href="{% url 'transaksi:histori' %}">Lihat semua &rarr;</a></div>
+    {% if transaksi_terbaru %}
+    <table class="tbl tbl--compact">
+      <tbody>
+        {% for t in transaksi_terbaru %}
+        <tr>
+          <td><a href="{{ t.get_absolute_url }}"><strong>{{ t.kode }}</strong></a><br><span class="muted small">{{ t.judul_kendaraan }}</span></td>
+          <td class="num">{{ t.total|rupiah }}<br>{% include "transaksi/_badge.html" %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="muted">Belum ada transaksi. <a href="{% url 'katalog:daftar' %}">Cari kendaraan</a></p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="section-head"><h2 class="sub" style="margin:0">Favorit terbaru</h2><a href="{% url 'katalog:favorit' %}">Lihat semua &rarr;</a></div>
+    {% if favorit_terbaru %}
+    <ul class="mini">
+      {% for f in favorit_terbaru %}
+      <li>
+        <a href="{{ f.kendaraan.get_absolute_url }}">{{ f.kendaraan.judul }}</a>
+        <span>{{ f.kendaraan.harga_rp }}{% if not f.kendaraan.tersedia %} &middot; {{ f.kendaraan.get_status_display }}{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="muted">Belum ada favorit. Tekan ikon hati pada kendaraan untuk menyimpannya.</p>
+    {% endif %}
+  </section>
+</div>
+
+<p style="margin-top:20px">
+  <a class="btn" href="{% url 'katalog:daftar' %}">Cari kendaraan</a>
+  <a class="btn btn--ghost" href="{% url 'akun:profil' %}">Ubah profil</a>
+</p>
+{% endblock %}

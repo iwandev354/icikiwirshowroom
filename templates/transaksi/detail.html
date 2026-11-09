@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load rupiah %}
+
+{% block title %}Transaksi {{ t.kode }} - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<nav class="crumbs" aria-label="Breadcrumb">
+  {% if user.is_staff %}
+    <a href="{% url 'dasbor:admin' %}">Dasbor</a> / <a href="{% url 'dasbor:admin_transaksi' %}">Transaksi</a>
+  {% else %}
+    <a href="{% url 'transaksi:histori' %}">Histori pembelian</a>
+  {% endif %}
+  / <span>{{ t.kode }}</span>
+</nav>
+
+<div class="trx">
+  <section class="panel">
+    <div class="panel__head">
+      <h1>{{ t.kode }}</h1>
+      {% include "transaksi/_badge.html" %}
+    </div>
+    <p class="muted">Dibuat {{ t.dibuat|date:"d F Y, H:i" }}</p>
+
+    <h2 class="sub">Kendaraan</h2>
+    <p><a href="{{ t.kendaraan.get_absolute_url }}"><strong>{{ t.judul_kendaraan }}</strong></a><br>
+      <span class="muted">{{ t.kendaraan.merek.nama }}{% if t.kendaraan.warna %} &middot; {{ t.kendaraan.warna }}{% endif %} &middot; {{ t.kendaraan.kilometer_fmt }}</span></p>
+
+    <h2 class="sub">Rincian pembayaran</h2>
+    <dl class="rincian">
+      <div><dt>Harga kendaraan</dt><dd>{{ t.harga|rupiah }}</dd></div>
+      <div><dt>Biaya administrasi</dt><dd>{{ t.biaya_admin|rupiah }}</dd></div>
+      <div class="rincian__total"><dt>Total</dt><dd>{{ t.total|rupiah }}</dd></div>
+    </dl>
+    <p class="muted">Metode: {{ t.get_metode_display }}</p>
+
+    <h2 class="sub">Data pembeli</h2>
+    <p>{{ t.nama_pembeli }}<br>{{ t.telepon }}<br>{{ t.alamat|linebreaksbr }}</p>
+    {% if user.is_staff %}<p class="muted small">Akun: {{ t.pembeli.username }}</p>{% endif %}
+    {% if t.catatan %}<p class="muted">Catatan: {{ t.catatan }}</p>{% endif %}
+  </section>
+
+  <aside class="panel">
+    <h2 class="sub" style="margin-top:0">Status</h2>
+    <ol class="timeline">
+      <li class="done"><strong>Pesanan dibuat</strong><span>{{ t.dibuat|date:"d M Y, H:i" }}</span></li>
+      {% if t.status == "dibatalkan" %}
+        <li class="cancel"><strong>Dibatalkan</strong><span>{{ t.dibatalkan_pada|date:"d M Y, H:i" }}</span></li>
+      {% else %}
+        <li class="{% if t.dikonfirmasi_pada %}done{% endif %}"><strong>Dikonfirmasi penjual</strong>
+          <span>{% if t.dikonfirmasi_pada %}{{ t.dikonfirmasi_pada|date:"d M Y, H:i" }}{% else %}Menunggu{% endif %}</span></li>
+        <li class="{% if t.selesai_pada %}done{% endif %}"><strong>Selesai</strong>
+          <span>{% if t.selesai_pada %}{{ t.selesai_pada|date:"d M Y, H:i" }}{% else %}-{% endif %}</span></li>
+      {% endif %}
+    </ol>
+
+    {% if t.aktif and t.metode == "transfer" and INFO_REKENING %}
+      <div class="note"><strong>Info transfer</strong><br>{{ INFO_REKENING }}<br>Cantumkan kode <strong>{{ t.kode }}</strong> pada berita transfer.</div>
+    {% endif %}
+
+    <div class="stack">
+      {% if t.bisa_cetak_struk %}
+        <a class="btn btn--wide" href="{% url 'transaksi:struk' t.kode %}">Lihat / cetak struk</a>
+      {% endif %}
+
+      {% if user.is_staff %}
+        {% include "transaksi/_aksi_admin.html" %}
+      {% elif t.bisa_dibatalkan_pembeli %}
+        <form method="post" action="{% url 'transaksi:batal' t.kode %}" onsubmit="return confirm('Batalkan pesanan ini?');">
+          {% csrf_token %}
+          <button class="btn btn--ghost btn--wide" type="submit">Batalkan pesanan</button>
+        </form>
+      {% endif %}
+    </div>
+  </aside>
+</div>
+{% endblock %}

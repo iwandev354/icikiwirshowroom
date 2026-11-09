@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Kendaraan - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Daftar kendaraan</h1>
+
+<div class="layout">
+  <aside class="filters">
+    <form method="get">
+      <label>Kata kunci
+        <input type="search" name="q" value="{{ filter.q }}" placeholder="Nama, merek, warna">
+      </label>
+
+      <label>Jenis
+        <select name="jenis">
+          <option value="">Semua</option>
+          {% for val, label in jenis_pilihan %}
+            <option value="{{ val }}" {% if filter.jenis == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Merek
+        <select name="merek">
+          <option value="">Semua</option>
+          {% for m in merek_list %}
+            <option value="{{ m.id }}" {% if filter.merek == m.id %}selected{% endif %}>{{ m.nama }}{% if not filter.jenis %} ({{ m.get_jenis_display }}){% endif %}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="pair">
+        <label>Tahun dari <input type="number" name="tahun_min" value="{{ filter.tahun_min }}" min="1980" max="2100"></label>
+        <label>sampai <input type="number" name="tahun_max" value="{{ filter.tahun_max }}" min="1980" max="2100"></label>
+      </div>
+
+      <div class="pair">
+        <label>Harga min (Rp) <input type="number" name="harga_min" value="{{ filter.harga_min }}" min="0" step="500000"></label>
+        <label>Harga maks (Rp) <input type="number" name="harga_max" value="{{ filter.harga_max }}" min="0" step="500000"></label>
+      </div>
+
+      <label>Transmisi
+        <select name="transmisi">
+          <option value="">Semua</option>
+          {% for val, label in transmisi_pilihan %}
+            <option value="{{ val }}" {% if filter.transmisi == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Urutkan
+        <select name="urut" onchange="this.form.submit()">
+          {% for val, label in urutan %}
+            <option value="{{ val }}" {% if filter.urut == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="check"><input type="checkbox" name="semua" value="1" {% if request.GET.semua %}checked{% endif %}> Tampilkan yang sudah terjual</label>
+
+      <div class="filters__actions">
+        <button class="btn" type="submit">Terapkan</button>
+        <a class="btn btn--ghost" href="{% url 'katalog:daftar' %}">Reset</a>
+      </div>
+    </form>
+  </aside>
+
+  <section class="results">
+    <p class="count">{{ halaman.paginator.count }} kendaraan ditemukan</p>
+
+    {% if halaman.object_list %}
+    <div class="grid">
+      {% for k in halaman %}{% include "katalog/_kartu.html" %}{% endfor %}
+    </div>
+
+    {% if halaman.has_other_pages %}
+    <nav class="pager" aria-label="Halaman">
+      {% if halaman.has_previous %}
+        <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ halaman.previous_page_number }}">&larr; Sebelumnya</a>
+      {% endif %}
+      <span>Halaman {{ halaman.number }} dari {{ halaman.paginator.num_pages }}</span>
+      {% if halaman.has_next %}
+        <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ halaman.next_page_number }}">Berikutnya &rarr;</a>
+      {% endif %}
+    </nav>
+    {% endif %}
+
+    {% else %}
+      <p class="empty">Tidak ada kendaraan yang cocok. Coba longgarkan filter pencarian.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

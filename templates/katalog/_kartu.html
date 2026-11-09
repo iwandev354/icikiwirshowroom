@@ -1,0 +1,23 @@
+<article class="card">
+  <div class="card__media">
+    <a class="card__img" href="{{ k.get_absolute_url }}">
+      {% if k.foto_utama %}
+        <img src="{{ k.foto_utama.url }}" alt="{{ k.judul }}" loading="lazy">
+      {% else %}
+        <span class="noimg">{{ k.get_jenis_display }}</span>
+      {% endif %}
+      {% if not k.tersedia %}<span class="badge badge--{{ k.status }}">{{ k.get_status_display }}</span>{% endif %}
+    </a>
+    {% include "katalog/_hati.html" %}
+  </div>
+  <div class="card__body">
+    <h3 class="card__title"><a href="{{ k.get_absolute_url }}">{{ k.judul }}</a></h3>
+    <p class="price">{{ k.harga_rp }}</p>
+    <ul class="meta">
+      <li>{{ k.tahun }}</li>
+      <li>{{ k.kilometer_fmt }}</li>
+      <li>{{ k.get_transmisi_display }}</li>
+    </ul>
+    {% if k.lokasi %}<p class="loc">{{ k.lokasi }}</p>{% endif %}
+  </div>
+</article>

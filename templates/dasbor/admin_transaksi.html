@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load rupiah %}
+
+{% block title %}Kelola Transaksi - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<nav class="crumbs"><a href="{% url 'dasbor:admin' %}">Dashboard</a> / <span>Transaksi</span></nav>
+<h1 class="page-title">Semua transaksi</h1>
+
+<form class="searchbar" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Cari kode, nama pembeli, kendaraan, username">
+  <select name="status" aria-label="Status">
+    <option value="">Semua status</option>
+    {% for val, label in status_pilihan %}<option value="{{ val }}" {% if status_aktif == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Cari</button>
+  <a class="btn btn--ghost" href="{% url 'dasbor:admin_transaksi' %}">Reset</a>
+</form>
+
+<p class="muted">{{ halaman.paginator.count }} transaksi</p>
+
+{% if halaman.object_list %}
+<div class="tablewrap">
+  <table class="tbl">
+    <thead><tr><th>Kode</th><th>Pembeli</th><th>Kendaraan</th><th class="num">Total</th><th>Status</th><th>Aksi</th></tr></thead>
+    <tbody>
+      {% for t in halaman %}
+      <tr>
+        <td><a href="{{ t.get_absolute_url }}"><strong>{{ t.kode }}</strong></a><br><span class="muted small">{{ t.dibuat|date:"d M Y H:i" }}</span></td>
+        <td>{{ t.nama_pembeli }}<br><span class="muted small">{{ t.telepon }}</span></td>
+        <td>{{ t.judul_kendaraan }}</td>
+        <td class="num">{{ t.total|rupiah }}</td>
+        <td>{% include "transaksi/_badge.html" %}</td>
+        <td>
+          {% include "transaksi/_aksi_admin.html" %}
+          {% if t.bisa_cetak_struk %}<a class="small" href="{% url 'transaksi:struk' t.kode %}">Struk</a>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if halaman.has_other_pages %}
+<nav class="pager" aria-label="Halaman">
+  {% if halaman.has_previous %}<a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ halaman.previous_page_number }}">&larr; Sebelumnya</a>{% endif %}
+  <span>Halaman {{ halaman.number }} dari {{ halaman.paginator.num_pages }}</span>
+  {% if halaman.has_next %}<a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ halaman.next_page_number }}">Berikutnya &rarr;</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+  <p class="empty">Tidak ada transaksi yang cocok.</p>
+{% endif %}
+{% endblock %}

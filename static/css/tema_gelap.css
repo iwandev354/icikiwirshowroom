@@ -1,0 +1,144 @@
+/* ===== Tema gelap icikiwir showroom ===== */
+:root {
+  --ink: #e8eaf2;          /* warna teks utama */
+  --ink-soft: #9aa3bd;     /* teks sekunder */
+  --bg: #0b0d14;
+  --panel: #131726;        /* kartu, form, tabel */
+  --line: rgba(255, 255, 255, 0.09);
+  --accent: #8b5cf6;
+  --accent-dark: #a78bfa;  /* harga & hover tombol */
+  --ok: #34d399;
+  --warn: #d69e2e;
+  --bad: #f87171;
+}
+
+body {
+  background:
+    radial-gradient(900px 500px at 10% -10%, rgba(139, 92, 246, 0.18), transparent 60%),
+    radial-gradient(800px 500px at 100% 0%, rgba(34, 211, 238, 0.10), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* Header kaca (var --ink sekarang terang, jadi background diatur manual) */
+.topbar {
+  background: rgba(19, 23, 38, 0.75);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  color: #fff;
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, #1b1840, #0f2a3d);
+  border: 1px solid var(--line);
+  color: #fff;
+}
+.hero__search input { background: #0b0d14; color: var(--ink); border: 1px solid var(--line); }
+
+/* Tombol */
+.btn { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; }
+.btn:hover { background: linear-gradient(135deg, #a78bfa, #818cf8); box-shadow: 0 0 20px rgba(139, 92, 246, .5); }
+.btn--ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn--ghost:hover { background: rgba(255, 255, 255, 0.06); }
+
+/* Kartu kendaraan */
+.card:hover { border-color: rgba(139, 92, 246, .5); box-shadow: 0 12px 40px rgba(139, 92, 246, .25); }
+.card__img, .gallery__main { background: #1a1f33; }
+.card__img img { transition: transform .4s ease; }
+.card:hover .card__img img { transform: scale(1.06); }
+.card__img { overflow: hidden; }
+.meta li { background: rgba(255, 255, 255, 0.07); color: var(--ink-soft); }
+.noimg { color: #5b6380; }
+
+/* Form: filter, kontak/pesan, pencarian */
+.filters input, .filters select,
+.contact input, .contact textarea {
+  background: #1a1f33;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.filters input:focus, .filters select:focus,
+.contact input:focus, .contact textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, .25);
+}
+::placeholder { color: #6b7391; opacity: 1; }
+select option { background: #1a1f33; color: var(--ink); }
+
+/* Spesifikasi & deskripsi */
+.specs { background: var(--panel); }
+.specs th { color: var(--ink-soft); }
+
+/* Pesan dari Django */
+.alert { background: rgba(52, 211, 153, .12); border-color: rgba(52, 211, 153, .35); }
+.alert--error { background: rgba(248, 113, 113, .12); border-color: rgba(248, 113, 113, .35); }
+
+/* Lain-lain */
+code { background: rgba(255, 255, 255, .08); }
+.empty { background: var(--panel); }
+.footer { border-top: 1px solid var(--line); }
+
+/* ===== Tambahan untuk fitur.css (akun, favorit, transaksi, dasbor, struk) ===== */
+
+/* Form umum (login, daftar, checkout) */
+.form input:not([type=checkbox]):not([type=radio]),
+.form select, .form textarea,
+.searchbar input, .searchbar select {
+  background: #1a1f33;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.form input:focus, .form select:focus, .form textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.form ul[id] li label, .form div[id] label { background: #1a1f33; }
+
+/* Pesan info & catatan */
+.alert--info { background: rgba(34, 211, 238, .12); border-color: rgba(34, 211, 238, .35); }
+.note { background: rgba(214, 158, 46, .12); border-color: rgba(214, 158, 46, .35); }
+.btn--danger { background: var(--bad); color: #1a0b0b; }
+.btn--danger:hover { background: #ef4444; }
+
+/* Tombol hati favorit */
+.hati__btn { background: rgba(19, 23, 38, .85); color: var(--ink); backdrop-filter: blur(6px); box-shadow: 0 1px 6px rgba(0, 0, 0, .5); }
+.hati__btn:hover { background: #1a1f33; color: #f472b6; }
+.hati__btn.is-on { color: #f472b6; }
+
+/* Label status transaksi */
+.status--menunggu    { background: rgba(214, 158, 46, .18); color: #fbbf24; }
+.status--dikonfirmasi { background: rgba(96, 165, 250, .18); color: #93c5fd; }
+.status--selesai     { background: rgba(52, 211, 153, .18); color: #6ee7b7; }
+.status--dibatalkan  { background: rgba(248, 113, 113, .18); color: #fca5a5; }
+
+/* Chip filter */
+.chip.is-on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Tabel */
+.tbl thead th { background: #1a1f33; }
+
+/* Timeline transaksi */
+.timeline li::before { background: var(--panel); }
+
+/* Dasbor */
+a.stat:hover { box-shadow: 0 6px 24px rgba(139, 92, 246, .25); border-color: rgba(139, 92, 246, .5); }
+.stat--alert { background: rgba(139, 92, 246, .12); border-color: var(--accent); }
+.bar__track { background: #1a1f33; }
+.bar__fill { background: linear-gradient(180deg, #22d3ee, #8b5cf6); }
+
+/* Struk di layar (tetap terang saat dicetak) */
+.struk { background: var(--panel); }
+@media print {
+  body { background: #fff; color: #000; }
+  .struk { background: #fff; color: #000; }
+  .struk *, .struk__tbl th, .struk__meta dt { color: #000 !important; }
+}
+
+.form input[type=date], .form input[type=time] {
+  background: #1a1f33;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  color-scheme: dark;
+}

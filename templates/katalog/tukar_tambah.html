@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">Tukar Tambah</h1>
+<p class="muted">Punya kendaraan lama? Isi data di bawah, kami taksir dan hubungi Anda.</p>
+
+<form method="post" enctype="multipart/form-data" class="panel form" style="max-width:600px">
+  {% csrf_token %}
+  {% for f in form %}
+    <div class="field">
+      <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+      {{ f }}
+      {% if f.help_text %}<span class="help">{{ f.help_text }}</span>{% endif %}
+      {% for e in f.errors %}<span class="error">{{ e }}</span>{% endfor %}
+    </div>
+  {% endfor %}
+  <button class="btn btn--wide" type="submit">Kirim Pengajuan</button>
+</form>
+{% endblock %}

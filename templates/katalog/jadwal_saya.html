@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Jadwal Saya - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Jadwal kunjungan saya</h1>
+
+{% if daftar_jadwal %}
+<div class="tablewrap">
+  <table class="tbl">
+    <thead>
+      <tr><th>Kendaraan</th><th>Tanggal</th><th>Jam</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for j in daftar_jadwal %}
+      <tr>
+        <td><a href="{{ j.kendaraan.get_absolute_url }}">{{ j.kendaraan.judul }}</a></td>
+        <td>{{ j.tanggal|date:"d F Y" }}</td>
+        <td>{{ j.jam|time:"H:i" }}</td>
+        <td><span class="status status--{{ j.status }}">{{ j.get_status_display }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="empty">Belum ada jadwal kunjungan. Pilih kendaraan, lalu klik <strong>Jadwalkan Lihat Unit</strong>.</p>
+{% endif %}
+{% endblock %}

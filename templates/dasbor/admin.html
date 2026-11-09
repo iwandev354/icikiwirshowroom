@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load rupiah %}
+
+{% block title %}Dashboard Admin - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<div class="section-head">
+  <h1 class="page-title">Dashboard admin</h1>
+  <div>
+    <a class="btn btn--small" href="{% url 'admin:katalog_kendaraan_add' %}">+ Tambah kendaraan</a>
+    <a class="btn btn--small btn--ghost" href="{% url 'admin:katalog_kendaraan_changelist' %}">Kelola kendaraan</a>
+    <a class="btn btn--small btn--ghost" href="{% url 'admin:index' %}">Admin Django</a>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><span class="stat__n">{{ stok.tersedia }}</span><span class="stat__l">Unit tersedia<br>({{ stok.motor }} motor, {{ stok.mobil }} mobil)</span></div>
+  <div class="stat"><span class="stat__n">{{ stok.dipesan }}</span><span class="stat__l">Unit dipesan</span></div>
+  <div class="stat"><span class="stat__n">{{ stok.terjual }}</span><span class="stat__l">Unit terjual</span></div>
+  <a class="stat{% if trx.menunggu %} stat--alert{% endif %}" href="{% url 'dasbor:admin_transaksi' %}?status=menunggu"><span class="stat__n">{{ trx.menunggu }}</span><span class="stat__l">Menunggu konfirmasi</span></a>
+  <div class="stat"><span class="stat__n">{{ jumlah_pembeli }}</span><span class="stat__l">Pembeli terdaftar</span></div>
+  <a class="stat{% if pertanyaan_baru %} stat--alert{% endif %}" href="{% url 'admin:katalog_pertanyaan_changelist' %}"><span class="stat__n">{{ pertanyaan_baru }}</span><span class="stat__l">Pertanyaan baru</span></a>
+</div>
+
+<div class="cols">
+  <section class="panel">
+    <h2 class="sub" style="margin-top:0">Penjualan 6 bulan terakhir</h2>
+    <p class="muted small">Dihitung dari transaksi berstatus selesai.</p>
+    <div class="bars" role="img" aria-label="Grafik penjualan per bulan">
+      {% for g in grafik %}
+      <div class="bar" title="{{ g.label }}: {{ g.nilai|rupiah }} ({{ g.jumlah }} unit)">
+        <em>{{ g.teks }}</em>
+        <div class="bar__track"><div class="bar__fill" style="height: {{ g.persen }}%"></div></div>
+        <span>{{ g.label }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <dl class="rincian" style="margin-top:14px">
+      <div><dt>Bulan ini</dt><dd>{{ bulan_ini.nilai|rupiah }} ({{ bulan_ini.jumlah }} unit)</dd></div>
+      <div class="rincian__total"><dt>Total pendapatan</dt><dd>{{ pendapatan|rupiah }}</dd></div>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <h2 class="sub" style="margin-top:0">Pertanyaan terbaru</h2>
+    {% if pertanyaan_terbaru %}
+    <ul class="mini">
+      {% for p in pertanyaan_terbaru %}
+      <li>
+        <strong>{{ p.nama }}</strong> <span class="muted">({{ p.telepon }})</span>{% if not p.sudah_dibaca %} <span class="status status--menunggu">Baru</span>{% endif %}
+        <span>{{ p.kendaraan.judul }}: {{ p.pesan|truncatechars:70 }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="muted">Belum ada pertanyaan masuk.</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="panel" style="margin-top:20px">
+  <div class="section-head">
+    <h2 class="sub" style="margin:0">Transaksi yang perlu tindakan</h2>
+    <a href="{% url 'dasbor:admin_transaksi' %}">Semua transaksi &rarr;</a>
+  </div>
+  {% if perlu_tindakan %}
+  <div class="tablewrap">
+    <table class="tbl">
+      <thead><tr><th>Kode</th><th>Pembeli</th><th>Kendaraan</th><th class="num">Total</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody>
+        {% for t in perlu_tindakan %}
+        <tr>
+          <td><a href="{{ t.get_absolute_url }}"><strong>{{ t.kode }}</strong></a><br><span class="muted small">{{ t.dibuat|date:"d M Y H:i" }}</span></td>
+          <td>{{ t.nama_pembeli }}<br><span class="muted small">{{ t.telepon }}</span></td>
+          <td>{{ t.judul_kendaraan }}</td>
+          <td class="num">{{ t.total|rupiah }}</td>
+          <td>{% include "transaksi/_badge.html" %}</td>
+          <td>{% include "transaksi/_aksi_admin.html" %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="muted">Tidak ada transaksi yang menunggu tindakan. </p>
+  {% endif %}
+</section>
+{% endblock %}

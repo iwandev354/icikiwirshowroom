@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load rupiah %}
+
+{% block title %}Struk {{ t.kode }} - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<div class="noprint struk-bar">
+  <a class="btn btn--ghost" href="{{ t.get_absolute_url }}">&larr; Kembali</a>
+  <button class="btn" type="button" onclick="window.print()">Cetak / Simpan PDF</button>
+</div>
+
+<article class="struk" aria-label="Struk pembelian">
+  <header class="struk__head">
+    <h1>{{ NAMA_USAHA }}</h1>
+    <p>STRUK PEMBELIAN</p>
+  </header>
+
+  <dl class="struk__meta">
+    <div><dt>No. Transaksi</dt><dd>{{ t.kode }}</dd></div>
+    <div><dt>Tanggal</dt><dd>{{ t.dibuat|date:"d F Y, H:i" }}</dd></div>
+    {% if t.dikonfirmasi_pada %}<div><dt>Dikonfirmasi</dt><dd>{{ t.dikonfirmasi_pada|date:"d F Y, H:i" }}</dd></div>{% endif %}
+    {% if t.selesai_pada %}<div><dt>Selesai</dt><dd>{{ t.selesai_pada|date:"d F Y, H:i" }}</dd></div>{% endif %}
+    <div><dt>Metode bayar</dt><dd>{{ t.get_metode_display }}</dd></div>
+    <div><dt>Status</dt><dd>{{ t.get_status_display }}</dd></div>
+  </dl>
+
+  <section class="struk__sec">
+    <h2>Pembeli</h2>
+    <p>{{ t.nama_pembeli }}<br>{{ t.telepon }}<br>{{ t.alamat|linebreaksbr }}</p>
+  </section>
+
+  <section class="struk__sec">
+    <h2>Kendaraan</h2>
+    <table class="struk__tbl">
+      <tr><th>Unit</th><td>{{ t.judul_kendaraan }}</td></tr>
+      <tr><th>Merek</th><td>{{ t.kendaraan.merek.nama }}</td></tr>
+      {% if t.kendaraan.warna %}<tr><th>Warna</th><td>{{ t.kendaraan.warna }}</td></tr>{% endif %}
+      <tr><th>Kilometer</th><td>{{ t.kendaraan.kilometer_fmt }}</td></tr>
+      {% if t.kendaraan.plat_wilayah %}<tr><th>Plat wilayah</th><td>{{ t.kendaraan.plat_wilayah }}</td></tr>{% endif %}
+    </table>
+  </section>
+
+  <section class="struk__sec">
+    <h2>Rincian pembayaran</h2>
+    <dl class="rincian">
+      <div><dt>Harga kendaraan</dt><dd>{{ t.harga|rupiah }}</dd></div>
+      <div><dt>Biaya administrasi</dt><dd>{{ t.biaya_admin|rupiah }}</dd></div>
+      <div class="rincian__total"><dt>TOTAL</dt><dd>{{ t.total|rupiah }}</dd></div>
+    </dl>
+  </section>
+
+  <footer class="struk__foot">
+    <p>Simpan struk ini sebagai bukti transaksi. Terima kasih telah berbelanja di {{ NAMA_USAHA }}.</p>
+  </footer>
+</article>
+{% endblock %}

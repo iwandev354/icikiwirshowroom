@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <h1>Motor &amp; mobil bekas, harga jelas, unit terawat.</h1>
+  <p>Cari kendaraan yang pas dengan kebutuhan dan anggaran Anda.</p>
+  <form class="hero__search" action="{% url 'katalog:daftar' %}" method="get">
+    <input type="search" name="q" placeholder="Cari: Vario, Avanza, Brio..." aria-label="Kata kunci">
+    <button class="btn" type="submit">Cari</button>
+  </form>
+  <div class="hero__cats">
+    <a class="cat" href="{% url 'katalog:daftar' %}?jenis=motor"><strong>Motor</strong><span>{{ jumlah.motor }} tersedia</span></a>
+    <a class="cat" href="{% url 'katalog:daftar' %}?jenis=mobil"><strong>Mobil</strong><span>{{ jumlah.mobil }} tersedia</span></a>
+  </div>
+</section>
+
+{% if unggulan %}
+<section>
+  <h2 class="section-title">Pilihan unggulan</h2>
+  <div class="grid">
+    {% for k in unggulan %}{% include "katalog/_kartu.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section>
+  <div class="section-head">
+    <h2 class="section-title">Baru masuk</h2>
+    <a href="{% url 'katalog:daftar' %}">Lihat semua &rarr;</a>
+  </div>
+  {% if terbaru %}
+  <div class="grid">
+    {% for k in terbaru %}{% include "katalog/_kartu.html" %}{% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">Belum ada kendaraan. Tambahkan lewat halaman admin, atau jalankan <code>python manage.py isi_contoh</code>.</p>
+  {% endif %}
+</section>
+{% endblock %}

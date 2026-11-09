@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Jadwalkan Kunjungan - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<nav class="crumbs">
+  <a href="{% url 'katalog:beranda' %}">Beranda</a> /
+  <a href="{{ k.get_absolute_url }}">{{ k.judul }}</a> /
+  <span>Jadwalkan kunjungan</span>
+</nav>
+
+<h1 class="page-title">Jadwalkan Kunjungan</h1>
+<p class="muted">Unit: <strong>{{ k.judul }} ({{ k.tahun }})</strong>, {{ k.harga_rp }}</p>
+
+<form method="post" class="panel form" style="max-width:560px">
+  {% csrf_token %}
+  {% for f in form %}
+    <div class="field">
+      <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+      {{ f }}
+      {% for e in f.errors %}<span class="error">{{ e }}</span>{% endfor %}
+    </div>
+  {% endfor %}
+  <button class="btn btn--wide" type="submit">Kirim Jadwal</button>
+</form>
+{% endblock %}

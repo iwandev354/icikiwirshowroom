@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Profil Saya - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<div class="authbox">
+  <h1>Profil saya</h1>
+  <p class="muted">Akun: <strong>{{ user.username }}</strong>. Data ini dipakai untuk mengisi otomatis form pemesanan.</p>
+
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+    {% include "_form.html" %}
+    <button class="btn btn--wide" type="submit">Simpan perubahan</button>
+  </form>
+</div>
+{% endblock %}

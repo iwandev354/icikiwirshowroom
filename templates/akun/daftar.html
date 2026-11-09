@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Akun - {{ NAMA_USAHA }}{% endblock %}
+
+{% block content %}
+<div class="authbox">
+  <h1>Daftar akun pembeli</h1>
+  <p class="muted">Gratis. Dengan akun, Anda bisa memesan kendaraan dan menyimpan favorit.</p>
+
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% include "_form.html" %}
+    <button class="btn btn--wide" type="submit">Buat akun</button>
+  </form>
+
+  <p class="authbox__alt">Sudah punya akun? <a href="{% url 'akun:masuk' %}">Masuk</a></p>
+</div>
+{% endblock %}
